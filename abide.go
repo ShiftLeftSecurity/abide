@@ -38,7 +38,7 @@ const (
 	// SnapshotGeneric represents a snapshot whose contents we assume have no known format.
 	SnapshotGeneric SnapshotType = ""
 	// SnapshotHTTPRespJSON represents a snapshot whose contents are an HTTP response with content type JSON.
-	SnapshotHTTPRespJSON SnapshotType = ""
+	SnapshotHTTPRespJSON SnapshotType = "HTTPContentTypeJSON"
 )
 
 func init() {

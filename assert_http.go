@@ -64,7 +64,6 @@ func (h *httpRequest) dump() string {
 
 func (h *httpRequest) jsonBodyCleanup(t *testing.T, c *config) error {
 	jsonStr := h.body
-	t.Logf("will cleanup body: %s", jsonStr)
 	if strings.TrimSpace(jsonStr) == "" {
 		return nil
 	}
@@ -214,7 +213,15 @@ func compareResultsHTTPRequestJSON(t *testing.T, existing, new string) string {
 	case jsondiff.SecondArgIsInvalidJson:
 		diffSoFar += "ERROR: New body is not valid JSON"
 	case jsondiff.BothArgsAreInvalidJson:
-		diffSoFar += "ERROR: Neither Existing nor New bodies are valid JSON"
+		if len(existingR.body) == len(newR.body) && len(newR.body) == 0 {
+			// empty
+			return diffSoFar
+		}
+		diffSoFar += "ERROR: Neither Existing nor New bodies are valid JSON\n"
+		diffSoFar += existingR.dump()
+		diffSoFar += "\n"
+		diffSoFar += newR.dump()
+
 	}
 	return diffSoFar
 }
