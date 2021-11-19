@@ -128,7 +128,7 @@ func TestCleanupUpdate(t *testing.T) {
 	// this snapshot is updated, should be evaluated, and not removed
 	_ = testingSnapshot("1", "A")
 	t2 := &testing.T{}
-	createOrUpdateSnapshot(t2, "1", "B")
+	createOrUpdateSnapshot(t2, "1", "B", SnapshotGeneric)
 
 	// this snapshot is never evaluated, and should be removed
 	_ = testingSnapshot("2", "B")

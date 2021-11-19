@@ -32,6 +32,15 @@ const (
 	snapshotSeparator = "/* snapshot: "
 )
 
+type SnapshotType string
+
+const (
+	// SnapshotGeneric represents a snapshot whose contents we assume have no known format.
+	SnapshotGeneric SnapshotType = ""
+	// SnapshotHTTPRespJSON represents a snapshot whose contents are an HTTP response with content type JSON.
+	SnapshotHTTPRespJSON SnapshotType = ""
+)
+
 func init() {
 	// Get arguments
 	args = getArguments()
