@@ -50,13 +50,24 @@ func (h *httpRequest) byteBody() []byte {
 	return []byte(h.body)
 }
 
+type bodyFormat string
+
+const (
+	plainFormat bodyFormat = ""
+	jsonFormat  bodyFormat = ""
+)
+
 // dump puts the request in form of a string to be written in the snapshot
 func (h *httpRequest) dump() string {
 	return fmt.Sprintf("%s\n\n%s", h.headerDump(), h.body)
 }
 
-func (h *httpRequest) jsonBodyCleanup(c *config) error {
+func (h *httpRequest) jsonBodyCleanup(t *testing.T, c *config) error {
 	jsonStr := h.body
+	t.Logf("will cleanup body: %s", jsonStr)
+	if strings.TrimSpace(jsonStr) == "" {
+		return nil
+	}
 
 	var jsonIface map[string]interface{}
 	err := json.Unmarshal([]byte(jsonStr), &jsonIface)
@@ -75,6 +86,7 @@ func (h *httpRequest) jsonBodyCleanup(c *config) error {
 	if err != nil {
 		return err
 	}
+
 	h.body = string(out)
 	return nil
 }
@@ -98,12 +110,12 @@ func plainToInternalRequest(requestDump []byte) *httpRequest {
 	lines := strings.Split(strings.TrimSpace(data), "\n")
 	h := httpRequest{}
 	for i, l := range lines {
-		if l == "" {
+		if strings.TrimSpace(l) == "" {
 			break
 		}
 		h.header = append(h.header, lines[i])
 	}
-	headerEnd := len(h.header) - 1
+	headerEnd := len(h.header) // this is the place where the empty line resides
 	h.body = strings.TrimSpace(strings.Join(lines[headerEnd:], "\n"))
 	return &h
 }
@@ -130,11 +142,12 @@ func assertHTTP(t *testing.T, id string, body []byte, isJSON bool) {
 
 	h := plainToInternalRequest(body)
 	h.configCleanup(c)
+
 	snapshotType := SnapshotGeneric
 
 	// If the response body is JSON, indent.
 	if isJSON {
-		if err := h.jsonBodyCleanup(c); err != nil {
+		if err := h.jsonBodyCleanup(t, c); err != nil {
 			t.Fatal(err)
 		}
 		snapshotType = SnapshotHTTPRespJSON
@@ -168,6 +181,8 @@ func compareResultsHTTPRequestJSON(t *testing.T, existing, new string) string {
 	}
 	existingR.configCleanup(c)
 	newR.configCleanup(c)
+	existingR.jsonBodyCleanup(t, c)
+	newR.jsonBodyCleanup(t, c)
 	// let us compare the headers in the old school ways
 	dmp := diffmatchpatch.New()
 	dmp.PatchMargin = 20
@@ -184,7 +199,9 @@ func compareResultsHTTPRequestJSON(t *testing.T, existing, new string) string {
 		diffSoFar = dmp.DiffPrettyText(allDiffs)
 	}
 
-	jsonDifference, explanation := jsondiff.Compare(existingR.byteBody(), newR.byteBody(), nil)
+	opts := jsondiff.DefaultConsoleOptions()
+
+	jsonDifference, explanation := jsondiff.Compare(existingR.byteBody(), newR.byteBody(), &opts)
 	if jsonDifference == jsondiff.FullMatch {
 		return diffSoFar
 	}
