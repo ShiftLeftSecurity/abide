@@ -32,6 +32,15 @@ const (
 	snapshotSeparator = "/* snapshot: "
 )
 
+type SnapshotType string
+
+const (
+	// SnapshotGeneric represents a snapshot whose contents we assume have no known format.
+	SnapshotGeneric SnapshotType = ""
+	// SnapshotHTTPRespJSON represents a snapshot whose contents are an HTTP response with content type JSON.
+	SnapshotHTTPRespJSON SnapshotType = "HTTPContentTypeJSON"
+)
+
 func init() {
 	// Get arguments
 	args = getArguments()
@@ -48,6 +57,32 @@ func Cleanup() error {
 	}
 
 	return allSnapshots.save()
+}
+
+// CleanupOrFail is an optional method which will behave like
+// Cleanup() if the `-u` flag was given, but which returns an error if
+// `-u` was not given and there were things to clean up.
+func CleanupOrFail() error {
+	if args.singleRun {
+		return nil
+	}
+	if args.shouldUpdate {
+		return Cleanup()
+	}
+
+	failed := 0
+	for _, s := range allSnapshots {
+		if !s.evaluated {
+			failed++
+			fmt.Fprintf(os.Stderr, "Unused snapshot `%s`\n", s.id)
+		}
+	}
+
+	if failed > 0 {
+		return fmt.Errorf("%d unused snapshots", failed)
+	}
+
+	return nil
 }
 
 // snapshotID represents the unique identifier for a snapshot.
