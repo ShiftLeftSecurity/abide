@@ -12,7 +12,7 @@ func TestMain(m *testing.M) {
 	// set SnapshotsDir to a path relative to tests before calling
 	// any Assert functions
 	// here we change the default "__snapshots__" to "testdata"
-	abide.SetSnapshotsDir("testdata")
+	abide.SnapshotsDir = "testdata"
 
 	exit := m.Run()
 	abide.Cleanup()
