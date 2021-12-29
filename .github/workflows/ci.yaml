@@ -1,0 +1,30 @@
+---
+name: CI
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        go: ['1.15', '1.16', '1.17.5']
+    name: Test using go ${{ matrix.go }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Install dependencies
+        run: |
+          go get -u golang.org/x/lint/golint
+          go get -t -v ./...
+      - name: Lint
+        run: |
+          test -z $(gofmt -s -l $(find . -type f -iname '*.go'))
+          golint -set_exit_status ./...
+          go vet ./...
+      - name: Test
+        run: go test -v -race ./...
