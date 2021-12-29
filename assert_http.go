@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/beme/abide/internal"
 	"github.com/nsf/jsondiff"
 	"github.com/sergi/go-diff/diffmatchpatch"
 )
@@ -70,7 +69,7 @@ func (h *httpRequest) jsonBodyCleanup(c *config) error {
 	// Clean/update json based on config.
 	if c != nil {
 		for k, v := range c.Defaults {
-			jsonIface = internal.UpdateKeyValuesInMap(k, v, jsonIface)
+			jsonIface = updateKeyValuesInMap(k, v, jsonIface)
 		}
 	}
 

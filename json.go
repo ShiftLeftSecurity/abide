@@ -1,8 +1,8 @@
-package internal
+package abide
 
-// UpdateKeyValuesInMap updates every instance of a key within an arbitrary
+// updateKeyValuesInMap updates every instance of a key within an arbitrary
 // `map[string]interface{}` with the given value.
-func UpdateKeyValuesInMap(key string, value interface{}, m map[string]interface{}) map[string]interface{} {
+func updateKeyValuesInMap(key string, value interface{}, m map[string]interface{}) map[string]interface{} {
 	return updateMap(key, value, m)
 }
 
