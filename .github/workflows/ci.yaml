@@ -19,8 +19,7 @@ jobs:
           go-version: ${{ matrix.go }}
       - name: Install dependencies
         run: |
-          go get -u golang.org/x/lint/golint
-          go get -t -v ./...
+          go install golang.org/x/lint/golint
       - name: Lint
         run: |
           test -z $(gofmt -s -l $(find . -type f -iname '*.go'))
