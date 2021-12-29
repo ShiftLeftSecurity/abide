@@ -20,10 +20,8 @@ func getArguments() *arguments {
 		switch arg {
 		case "-u":
 			args.shouldUpdate = true
-			break
 		case "-test.run":
 			args.singleRun = true
-			break
 		}
 	}
 
