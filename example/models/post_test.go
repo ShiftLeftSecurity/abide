@@ -21,5 +21,6 @@ func TestMain(m *testing.M) {
 
 func TestPost(t *testing.T) {
 	p := &Post{"Foo", "Bar"}
+	t.Log(abide.SnapshotsDir)
 	abide.Assert(t, "person", p)
 }
