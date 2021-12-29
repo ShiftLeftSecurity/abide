@@ -2,6 +2,7 @@ package abide
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -18,9 +19,13 @@ var (
 )
 
 var (
+	defaultSnapshotsDir = "__snapshots__"
 	// SnapshotsDir is the directory snapshots will be read to & written from
 	// relative directories are resolved to present-working-directory of the executing process
-	SnapshotsDir = "__snapshots__"
+	SnapshotsDir         = defaultSnapshotsDir
+	canChangeSnapshotDir = true
+	snapshotDirMu        = sync.Mutex{}
+
 	// snapshotsLoaded
 	snapshotsLoaded = sync.Once{}
 )
@@ -45,6 +50,24 @@ const (
 func init() {
 	// Get arguments
 	args = getArguments()
+}
+
+// SetSnapshotsDir is a safe way to change the snapshots directory name
+func SetSnapshotsDir(d string) {
+	snapshotDirMu.Lock()
+	defer snapshotDirMu.Unlock()
+	if !canChangeSnapshotDir {
+		panic(errors.New("The SnapshotsDir is already in use, and is not safe to be changed"))
+	}
+	SnapshotsDir = d
+}
+
+func getSnapshotsDir() string {
+	snapshotDirMu.Lock()
+	defer snapshotDirMu.Unlock()
+	canChangeSnapshotDir = false
+	return SnapshotsDir
+
 }
 
 // Cleanup is an optional method which will execute cleanup operations
@@ -294,7 +317,7 @@ func findOrCreateSnapshotDirectory() (string, error) {
 		return "", errUnableToLocateTestPath
 	}
 
-	dir := filepath.Join(testingPath, SnapshotsDir)
+	dir := filepath.Join(testingPath, getSnapshotsDir())
 	_, err = os.Stat(dir)
 	if os.IsNotExist(err) {
 		err = os.Mkdir(dir, os.ModePerm)

@@ -8,7 +8,7 @@ import (
 )
 
 func testingCleanup() {
-	os.RemoveAll(SnapshotsDir)
+	os.RemoveAll(getSnapshotsDir())
 }
 
 func testingSnapshot(id, value string) *snapshot {
