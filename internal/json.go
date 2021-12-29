@@ -1,4 +1,4 @@
-package utils
+package internal
 
 // UpdateKeyValuesInMap updates every instance of a key within an arbitrary
 // `map[string]interface{}` with the given value.
