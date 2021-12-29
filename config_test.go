@@ -22,7 +22,7 @@ func TestGetConfig(t *testing.T) {
 	defer testingCleanup()
 
 	// test no config
-	config, err := getConfig()
+	_, err := getConfig()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +31,7 @@ func TestGetConfig(t *testing.T) {
 	defer os.Remove(configFileName)
 
 	// test with config
-	config, err = getConfig()
+	config, err := getConfig()
 	if err != nil {
 		t.Fatal(err)
 	}

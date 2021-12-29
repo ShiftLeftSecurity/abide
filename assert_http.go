@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/beme/abide/internal"
 	"github.com/nsf/jsondiff"
 	"github.com/sergi/go-diff/diffmatchpatch"
 )
@@ -50,19 +49,12 @@ func (h *httpRequest) byteBody() []byte {
 	return []byte(h.body)
 }
 
-type bodyFormat string
-
-const (
-	plainFormat bodyFormat = ""
-	jsonFormat  bodyFormat = ""
-)
-
 // dump puts the request in form of a string to be written in the snapshot
 func (h *httpRequest) dump() string {
 	return fmt.Sprintf("%s\n\n%s", h.headerDump(), h.body)
 }
 
-func (h *httpRequest) jsonBodyCleanup(t *testing.T, c *config) error {
+func (h *httpRequest) jsonBodyCleanup(c *config) error {
 	jsonStr := h.body
 	if strings.TrimSpace(jsonStr) == "" {
 		return nil
@@ -77,7 +69,7 @@ func (h *httpRequest) jsonBodyCleanup(t *testing.T, c *config) error {
 	// Clean/update json based on config.
 	if c != nil {
 		for k, v := range c.Defaults {
-			jsonIface = internal.UpdateKeyValuesInMap(k, v, jsonIface)
+			jsonIface = updateKeyValuesInMap(k, v, jsonIface)
 		}
 	}
 
@@ -146,7 +138,7 @@ func assertHTTP(t *testing.T, id string, body []byte, isJSON bool) {
 
 	// If the response body is JSON, indent.
 	if isJSON {
-		if err := h.jsonBodyCleanup(t, c); err != nil {
+		if err := h.jsonBodyCleanup(c); err != nil {
 			t.Fatal(err)
 		}
 		snapshotType = SnapshotHTTPRespJSON
@@ -180,8 +172,8 @@ func compareResultsHTTPRequestJSON(t *testing.T, existing, new string) string {
 	}
 	existingR.configCleanup(c)
 	newR.configCleanup(c)
-	existingR.jsonBodyCleanup(t, c)
-	newR.jsonBodyCleanup(t, c)
+	existingR.jsonBodyCleanup(c)
+	newR.jsonBodyCleanup(c)
 	// let us compare the headers in the old school ways
 	dmp := diffmatchpatch.New()
 	dmp.PatchMargin = 20

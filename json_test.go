@@ -1,4 +1,4 @@
-package internal
+package abide
 
 import (
 	"testing"
@@ -20,7 +20,7 @@ func TestUpdateKeyValuesInMap(t *testing.T) {
 		"B": 3,
 	}
 
-	newM := UpdateKeyValuesInMap("B", 0, m)
+	newM := updateKeyValuesInMap("B", 0, m)
 	b1 := newM["A"].(map[string]interface{})["B"].(int)
 	if b1 != 0 {
 		t.Fatalf("Expected 0, instead got %d.", b1)
