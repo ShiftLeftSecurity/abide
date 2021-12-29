@@ -32,6 +32,7 @@ const (
 	snapshotSeparator = "/* snapshot: "
 )
 
+// SnapshotType is the type of snapshot being captured
 type SnapshotType string
 
 const (
