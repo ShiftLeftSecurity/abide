@@ -220,7 +220,7 @@ func reloadSnapshots() error {
 	paths := []string{}
 	for _, file := range files {
 		path := filepath.Join(dir, file.Name())
-		if filepath.Ext(path) == snapshotExt {
+		if isSnapshot(path) {
 			paths = append(paths, path)
 		}
 	}
