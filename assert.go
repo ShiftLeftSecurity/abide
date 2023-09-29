@@ -7,6 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hexops/gotextdiff"
+	"github.com/hexops/gotextdiff/myers"
+	"github.com/hexops/gotextdiff/span"
 	"github.com/sergi/go-diff/diffmatchpatch"
 )
 
@@ -56,7 +59,7 @@ func createOrUpdateSnapshot(t *testing.T, id, data string, format SnapshotType) 
 	case SnapshotHTTPRespJSON:
 		diff = compareResultsHTTPRequestJSON(t, snapshot.value, strings.TrimSpace(data))
 	default:
-		diff = compareResults(t, snapshot.value, strings.TrimSpace(data))
+		diff = compareResults(t, id, snapshot.value, strings.TrimSpace(data))
 	}
 
 	if diff != "" {
@@ -74,7 +77,18 @@ func createOrUpdateSnapshot(t *testing.T, id, data string, format SnapshotType) 
 	}
 }
 
-func compareResults(t *testing.T, existing, new string) string {
+func compareResults(t *testing.T, id, existing, new string) string {
+	c, err := getConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if c != nil && c.UnifiedDiff {
+		edits := myers.ComputeEdits(span.URIFromPath(id), existing, new)
+		diff := gotextdiff.ToUnified("a.txt", "b.txt", existing, edits)
+		return fmt.Sprint(diff)
+	}
+
 	dmp := diffmatchpatch.New()
 	dmp.PatchMargin = 20
 	allDiffs := dmp.DiffMain(existing, new, false)
