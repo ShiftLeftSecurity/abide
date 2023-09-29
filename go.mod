@@ -8,4 +8,6 @@ require (
 	github.com/sergi/go-diff v1.2.0
 )
 
+require github.com/hexops/gotextdiff v1.0.3
+
 replace github.com/beme/abide => ./

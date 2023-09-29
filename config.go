@@ -11,7 +11,8 @@ const (
 )
 
 type config struct {
-	Defaults map[string]interface{} `json:"defaults"`
+	UnifiedDiff bool                   `json:"unified-diff"`
+	Defaults    map[string]interface{} `json:"defaults"`
 }
 
 func getConfig() (*config, error) {
