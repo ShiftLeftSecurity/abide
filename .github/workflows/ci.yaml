@@ -11,7 +11,7 @@ jobs:
       - name: Setup go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.17.5
+          go-version: 1.19
       - name: Install dependencies
         run: |
           go install golang.org/x/lint/golint@latest
@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        go: ['1.17.5']
+        go: ['1.17.5', '1.19', '1.21']
     name: Test using go ${{ matrix.go }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
